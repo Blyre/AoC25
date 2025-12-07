@@ -13,24 +13,18 @@ function decodeMessage(fileContent: string[]): number {
     let direction: string = message[0];
     let steps: number = parseInt(message.slice(1));
     let previousLock: number = lock;
-
+    let increment: number = 0;
+    
+    increment = Math.trunc(lock + steps / 100);
     if(direction === 'R'){
       lock += steps;
+      lock %= 100;
     }else if(direction === 'L'){
       lock -= steps;
+      lock %= 100;  
     }
 
-    // Calculate how many times we cross or land on a multiple of 100 (which represents 0 on the dial)
-    const previousMultiple = Math.floor(previousLock / 101);
-    const currentMultiple = Math.floor(lock / 101);
     
-    // Count the number of multiples of 100 we crossed or landed on
-    let numCrossings = Math.abs(currentMultiple - previousMultiple);
-    
-    
-
-    count += numCrossings;
-    console.log(`Previous Lock: ${previousLock}, Current Lock: ${lock}, Previous Multiple: ${previousMultiple}, Current Multiple: ${currentMultiple}, Crossings: ${numCrossings}, Total Count: ${count}`);
   }
   return count;
 }
