@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -21,25 +21,25 @@ func openAndReadFile() string {
 	return content
 }
 
-func getMaxes(line string) int {
-	val0, err := strconv.Atoi(string(line[0]))
-	checkErr(err)
-	val1, err := strconv.Atoi(string(line[1]))
-	max_joltage := val0*10 + val1
+func getJoltage(line string, numBanks int) int64 {
+	result := int64(0)
+	start := 0
 
-	for i := 0; i < len(line); i++ {
-		current_val, err := strconv.Atoi(string(line[i]))
-		checkErr(err)
-		for j := i + 1; j < len(line); j++ {
-			next_val, err := strconv.Atoi(string(line[j]))
-			checkErr(err)
-			new_joltage := current_val*10 + next_val
-			if new_joltage > max_joltage {
-				max_joltage = new_joltage
+	for i := numBanks; i > 0; i-- {
+		max := byte('0')
+		end := len(line) - i
+
+		for j := start; j <= end; j++ {
+			if line[j] > max {
+				max = line[j]
+				start = j + 1
 			}
 		}
+
+		result += int64(max-'0') * int64(math.Pow(10.0, float64(i-1)))
 	}
-	return max_joltage
+
+	return result
 }
 
 func main() {
@@ -49,10 +49,10 @@ func main() {
 	// Split content string by new lines resulting in a slice of strings
 	lines := strings.Split(content, "\n")
 
-	sum := 0
+	sum := int64(0)
 
 	for _, line := range lines {
-		joltage := getMaxes(line)
+		joltage := getJoltage(line, 12)
 		sum += joltage
 		fmt.Println("In line:", line, "joltage:", joltage, "partial sum:", sum)
 	}
