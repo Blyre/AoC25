@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// Possible improvements: User sort package to sort ranges, binary search for value checking
+
 func extractRangesAndValues(content string) ([][2]int, []int) {
 	// Iterate over each line of the content, the ranges are in a min-max format and the values are seperated by a blank line
 	var ranges [][2]int
