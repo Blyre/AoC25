@@ -23,8 +23,6 @@ function decodeMessage(fileContent: string[]): number {
       lock -= steps;
       lock %= 100;  
     }
-
-    
   }
   return count;
 }
