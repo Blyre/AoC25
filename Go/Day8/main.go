@@ -76,19 +76,36 @@ func findBreakerInCircuitMap(breaker Breaker, circuits map[int]Circuit) (int, bo
 func connectCircuits(pairs []PairWithDistance, breakers []Breaker, size int) map[int]Circuit {
 	connected := make([]bool, len(breakers))
 	circuits := make(map[int]Circuit)
-
+	fmt.Println("Connecting circuits...", len(connected))
 	// Initialize first circuit
 	circuits[0] = Circuit{[]Breaker{breakers[pairs[0].i], breakers[pairs[0].j]}}
 	connected[pairs[0].i] = true
 	connected[pairs[0].j] = true
-
 	nextCircuitID := 1
-
-	for i := 1; i < size; i++ {
+	i := 1
+	for {
+		// Check loop termination conditions
+		if size != -1 && i >= size {
+			break
+		}
+		// Check if all breakers are connected and in one circuit
+		allConnected := true
+		for _, isConnected := range connected {
+			if !isConnected {
+				allConnected = false
+				break
+			}
+		}
 		breakerAIndex := pairs[i].i
 		breakerBIndex := pairs[i].j
 		breakerA := breakers[breakerAIndex]
 		breakerB := breakers[breakerBIndex]
+		if size == -1 && len(circuits) == 1 && allConnected {
+			fmt.Println("size:", len(circuits), "breakers:", len(breakers), "all connected")
+			fmt.Println("The last breakers used were:", breakerA, breakerB)
+			fmt.Println("Part 2 result:", breakerA.x*breakerB.x)
+			break
+		}
 
 		if connected[breakerAIndex] && connected[breakerBIndex] {
 			// Merge the two circuits
@@ -101,6 +118,9 @@ func connectCircuits(pairs []PairWithDistance, breakers []Breaker, size int) map
 				circuits[circuitAID] = circuitA
 				// Remove circuitB
 				delete(circuits, circuitBID)
+				//fmt.Println("All breakers connected into a single circuit.")
+				//fmt.Println("The last breakers where:", breakerA, breakerB)
+
 			}
 		} else if connected[breakerAIndex] {
 			circuitID, _ := findBreakerInCircuitMap(breakerA, circuits)
@@ -121,6 +141,7 @@ func connectCircuits(pairs []PairWithDistance, breakers []Breaker, size int) map
 			connected[breakerBIndex] = true
 			nextCircuitID++
 		}
+		i++
 	}
 	return circuits
 }
@@ -167,11 +188,11 @@ func finalCalculation(circuits map[int]Circuit) int {
 
 func main() {
 	//circuits := []Circuit{}
-	contents := utils.OpenAndReadFile("small.txt")
+	contents := utils.OpenAndReadFile("input.txt")
 	breakers := parseBreakers(contents)
 	//fmt.Println("Breakers are:", breakers)
 	pairs := findShortestPairsDistance(breakers)
-	circuits := connectCircuits(pairs, breakers, 10)
+	circuits := connectCircuits(pairs, breakers, -1)
 	printCircuits(circuits)
 	result := finalCalculation(circuits)
 	fmt.Println("Final result is:", result)
